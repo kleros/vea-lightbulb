@@ -20,6 +20,8 @@
   "scripts": {
     "build": "hardhat compile",
     "clean": "hardhat clean",
-    "deploy:ArbToEthTestnet": "hardhat deploy --network sepolia --tags ArbSepoliaToSepoliaReceiver && hardhat deploy --network arbitrumSepolia --tags ArbSepoliaToSepoliaSender"
+    "deploy:ArbToEthTestnet": "hardhat deploy --network sepolia --tags ArbSepoliaToSepoliaReceiver && hardhat deploy --network arbitrumSepolia --tags ArbSepoliaToSepoliaSender",
+    "etherscan-verify:sepolia": "hardhat etherscan-verify --network sepolia",
+    "etherscan-verify:arbitrumSepolia": "hardhat etherscan-verify --network arbitrumSepolia"
   }
 }
