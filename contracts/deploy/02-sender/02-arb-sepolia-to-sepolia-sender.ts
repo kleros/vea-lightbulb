@@ -1,24 +1,34 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
+import getContractAddress from "../../deploy-helpers/getContractAddress";
+import { ethers } from "hardhat";
 
 enum SenderChains {
-  ARBITRUM_GOERLI = 421613,
+  ARBITRUM_SEPOLIA = 421614,
 }
 
 // TODO: use deterministic deployments
 const deploySender: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
-  const { deployments, getNamedAccounts, getChainId } = hre;
-  const { deploy, execute } = deployments;
-  const chainId = Number(await getChainId());
+  const { ethers, deployments, getNamedAccounts, getChainId, config } = hre;
+  const { deploy } = deployments;
+  const { providers } = ethers;
 
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
-  console.log("deployer: %s", deployer);
+  const chainId = Number(await getChainId());
+  console.log("deploying to chainId %s with deployer %s", chainId, deployer);
+
+  const ReceiverNetworks = {
+    SEPOLIA: config.networks.sepolia,
+  };
+
+  // Hack to predict the deployment address on the sender chain.
+  // TODO: use deterministic deployments
 
   // ----------------------------------------------------------------------------------------------
   const liveDeployer = async () => {
     const LightBulb = await hre.companionNetworks.receiver.deployments.get("LightBulb");
-    const veaInbox = "0x906dE43dBef27639b1688Ac46532a16dc07Ce410";
+    const veaInbox = "0x77e95F54032f467eC45c48C6affc203f93858783";
     const lightBulbsSwitch = await deploy("Switch", {
       from: deployer,
       contract: "Switch",
@@ -30,10 +40,10 @@ const deploySender: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   };
 
   // ----------------------------------------------------------------------------------------------
-    await liveDeployer();
+  await liveDeployer();
 };
 
-deploySender.tags = ["ArbToEthSender"];
+deploySender.tags = ["ArbSepoliaToSepoliaSender"];
 deploySender.skip = async ({ getChainId }) => {
   const chainId = Number(await getChainId());
   console.log(chainId);

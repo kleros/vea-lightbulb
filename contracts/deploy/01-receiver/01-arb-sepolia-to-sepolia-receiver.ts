@@ -1,13 +1,11 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import getContractAddress from "../deploy-helpers/getContractAddress";
+import getContractAddress from "../../deploy-helpers/getContractAddress";
 import { ethers } from "hardhat";
 
 enum ReceiverChains {
-  ETHEREUM_GOERLI = 5,
-  GNOSIS_CHIADO = 10200,
+  ETHEREUM_SEPOLIA = 11155111,
 }
-
 
 const deployReceiver: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId, config } = hre;
@@ -20,9 +18,7 @@ const deployReceiver: DeployFunction = async (hre: HardhatRuntimeEnvironment) =>
   console.log("deploying to chainId %s with deployer %s", chainId, deployer);
 
   const senderNetworks = {
-    ETHEREUM_GOERLI: config.networks.arbitrumGoerli,
-    GNOSIS_CHIADO: config.networks.arbitrumGoerli,
-    HARDHAT: config.networks.localhost,
+    ETHEREUM_SEPOLIA: config.networks.arbitrumSepolia,
   };
 
   // Hack to predict the deployment address on the sender chain.
@@ -30,11 +26,10 @@ const deployReceiver: DeployFunction = async (hre: HardhatRuntimeEnvironment) =>
 
   // ----------------------------------------------------------------------------------------------
   const liveDeployer = async () => {
-    console.log(config.networks);
     const senderChainProvider = new providers.JsonRpcProvider(senderNetworks[ReceiverChains[chainId]].url);
     let nonce = await senderChainProvider.getTransactionCount(deployer);
     const lightBulbsSwitch = getContractAddress(deployer, nonce);
-    const outbox = "0x906dE43dBef27639b1688Ac46532a16dc07Ce410";
+    const outbox = "0x5AD255400913515C8DA7E82E6b8A109fA5c46135";
     console.log("LightBulbsSwitch address: %s", lightBulbsSwitch);
     const lightbulb = await deploy("LightBulb", {
       from: deployer,
@@ -47,10 +42,10 @@ const deployReceiver: DeployFunction = async (hre: HardhatRuntimeEnvironment) =>
   };
 
   // ----------------------------------------------------------------------------------------------
-    await liveDeployer();
+  await liveDeployer();
 };
 
-deployReceiver.tags = ["ArbToEthReceiver"];
+deployReceiver.tags = ["ArbSepoliaToSepoliaReceiver"];
 deployReceiver.skip = async ({ getChainId }) => {
   const chainId = Number(await getChainId());
   console.log(chainId);

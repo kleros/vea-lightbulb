@@ -5,7 +5,8 @@ import "@nomiclabs/hardhat-ethers";
 import "@typechain/hardhat";
 import "hardhat-deploy";
 import "hardhat-deploy-ethers";
-import "@nomiclabs/hardhat-etherscan";
+import "solidity-coverage";
+import "hardhat-gas-reporter";
 
 dotenv.config();
 
@@ -24,18 +25,19 @@ const config: HardhatUserConfig = {
   },
   networks: {
     // Sender chain ---------------------------------------------------------------------------------
-    arbitrumGoerli: {
-      chainId: 421613,
-      url: "https://goerli-rollup.arbitrum.io/rpc",
+    arbitrumSepolia: {
+      chainId: 421614,
+      url: "https://sepolia-rollup.arbitrum.io/rpc",
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       live: true,
       saveDeployments: true,
       tags: ["staging", "sender", "layer2"],
       companionNetworks: {
-        receiver: "chiado",
+        receiver: "sepolia",
       },
       verify: {
         etherscan: {
+          apiUrl: "https://api-sepolia.arbiscan.io/api",
           apiKey: process.env.ARBISCAN_API_KEY,
         },
       },
@@ -48,7 +50,7 @@ const config: HardhatUserConfig = {
       saveDeployments: true,
       tags: ["staging", "outbox", "layer1"],
       companionNetworks: {
-        arbitrumGoerli: "arbitrumGoerli",
+        arbitrumSepolia: "arbitrumSepolia",
       },
       verify: {
         etherscan: {
@@ -57,15 +59,15 @@ const config: HardhatUserConfig = {
       },
     },
     // Receiver chain ---------------------------------------------------------------------------------
-    goerli: {
-      chainId: 5,
-      url: `https://goerli.infura.io/v3/${process.env.INFURA_API_KEY}`,
+    sepolia: {
+      chainId: 11155111,
+      url: "https://sepolia.infura.io/v3/65fd25a0ab7f4af08f18de6a2d4c6aa6",
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       live: true,
       saveDeployments: true,
       tags: ["staging", "receiver", "layer1"],
       companionNetworks: {
-        sender: "arbitrumGoerli",
+        sender: "arbitrumSepolia",
       },
     },
   },
@@ -87,7 +89,7 @@ const config: HardhatUserConfig = {
     etherscan: {
       apiKey: process.env.ETHERSCAN_API_KEY_FIX,
     },
-  }
+  },
 };
 
 export default config;
